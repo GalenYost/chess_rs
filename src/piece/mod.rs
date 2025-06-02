@@ -13,8 +13,9 @@ pub enum Name {
     Pawn, King, Queen, Rook, Knight, Bishop
 }
 
-#[derive(Debug,PartialEq,Eq,Clone,Copy)]
+#[derive(Debug,PartialEq,Eq,Clone,Copy,Default)]
 pub enum Color {
+    #[default]
     White,
     Black
 }
@@ -27,7 +28,8 @@ pub struct Position {
 
 #[derive(Debug,Clone)]
 pub struct Move {
-    pub piece: Piece,
+    pub piece_name: Name,
+    pub piece_color: Color,
     pub from: Position,
     pub to: Position,
     pub capture: bool,
@@ -39,6 +41,7 @@ pub struct Move {
 pub struct Piece {
     pub name: Name,
     pub color: Color,
+    pub pos: Position,
     pub data: Box<dyn PieceData>,
 }
 
@@ -65,6 +68,16 @@ where
 impl Clone for Box<dyn PieceData> {
     fn clone(&self) -> Box<dyn PieceData> {
         self.box_clone()
+    }
+}
+
+impl Piece {
+    pub fn legal_moves (&self, board: &Board) -> Vec<Position> {
+        self.data.legal_moves(self.pos, self.color, board)
+    }
+
+    pub fn on_move (&mut self, to: Position, board: &mut Board) -> () {
+        self.data.on_move(self.pos, to, self.color, board);
     }
 }
 
