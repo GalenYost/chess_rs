@@ -4,7 +4,7 @@ use crate::piece::pawn::PawnData;
 use crate::piece::{Color, Name, Piece, Position};
 use crate::utils::{all_positions, validate_pos};
 
-#[derive(Debug, Clone)]
+#[derive(Debug,Clone,Default)]
 pub struct Board(pub [[Option<Piece>; 8]; 8]);
 
 impl Index<usize> for Board {
