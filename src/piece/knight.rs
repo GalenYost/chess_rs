@@ -1,5 +1,5 @@
 use crate::utils::step_moves;
-use crate::piece::{Piece, PieceData, Position, Name, Color};
+use crate::piece::{Color, MoveMeta, Name, Piece, PieceData, Position};
 use crate::board::Board;
 
 use std::any::Any;
@@ -22,7 +22,7 @@ impl PieceData for KnightData {
         step_moves(board, pos, STEPS, color)
     }
 
-    fn on_move (&mut self, _from: Position, _to: Position, _color: Color, _board: &mut Board) -> () {}
+    fn on_move (&mut self, _from: Position, _to: Position, _color: Color, _board: &mut Board) -> Option<MoveMeta> {None}
 }
 
 pub fn new (pos: Position, color: Color) -> Piece {

@@ -1,10 +1,10 @@
 use crate::board::Board;
-use crate::piece::{Color, Move, Name, Position};
+use crate::piece::{Color, MoveMeta, Position};
 use crate::rules::filter_moves;
 
 pub struct Game {
     pub board: Board,
-    pub history: Vec<Move>,
+    pub history: Vec<MoveMeta>,
     turn: Color,
 }
 
@@ -20,10 +20,7 @@ impl Default for Game {
 
 impl Game {
     fn switch_turn (&mut self) -> () {
-        self.turn = match self.turn {
-            Color::Black => Color::White,
-            Color::White => Color::Black,
-        }
+        self.turn = self.turn.opposite();
     }
 
     pub fn get_turn (&self) -> Color {
@@ -41,18 +38,10 @@ impl Game {
         let mut legal_moves = piece.legal_moves(&self.board);
         filter_moves(&self.board, &mut legal_moves, from, piece.color);
 
-        if !legal_moves.contains(&to) { return; }
-
-        if piece.name != Name::King && piece.name != Name::Pawn {
-            self.history.push(Move {
-                piece_name: piece.name,
-                piece_color: piece.color,
-                from,
-                to,
-                capture: self.board.get(to.row as i8, to.col as i8).is_some(),
-                promotion: None,
-                castle: false,
-            })
+        if !legal_moves.contains(&to) {
+            println!("Log: illegal move");
+            println!("Info: from - {:?}, to - {:?}, piece - {:?}", from, to, piece);
+            return;
         }
 
         let mut p = match self.board.take(from.row as i8, from.col as i8) {
@@ -61,8 +50,20 @@ impl Game {
         };
 
         p.pos = to;
-        p.on_move(to, &mut self.board);
-        self.board.set(to, Some(p));
+        if let Some(move_meta) = p.on_move(to, &mut self.board) {
+            self.history.push(move_meta)
+        } else {
+            self.history.push(MoveMeta {
+                piece_name: p.name,
+                piece_color: p.color,
+                from,
+                to,
+                capture: self.board.get(to.row as i8, to.col as i8).is_some(),
+                promotion: None,
+                castle: false
+            })
+        }
+        self.board.set(to.row as i8, to.col as i8, Some(p));
 
         self.switch_turn();
     }

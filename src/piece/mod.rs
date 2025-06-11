@@ -27,13 +27,13 @@ pub struct Position {
 }
 
 #[derive(Debug,Clone)]
-pub struct Move {
+pub struct MoveMeta {
     pub piece_name: Name,
     pub piece_color: Color,
     pub from: Position,
     pub to: Position,
     pub capture: bool,
-    pub promotion: Option<Piece>,
+    pub promotion: Option<Name>,
     pub castle: bool,
 }
 
@@ -49,7 +49,7 @@ pub trait PieceData: PieceDataClone + Debug + Any {
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
     fn legal_moves(&self, pos: Position, color: Color, board: &Board) -> Vec<Position>;
-    fn on_move(&mut self, from: Position, to: Position, color: Color, board: &mut Board);
+    fn on_move(&mut self, from: Position, to: Position, color: Color, board: &mut Board) -> Option<MoveMeta>;
 }
 
 pub trait PieceDataClone {
@@ -76,8 +76,8 @@ impl Piece {
         self.data.legal_moves(self.pos, self.color, board)
     }
 
-    pub fn on_move (&mut self, to: Position, board: &mut Board) -> () {
-        self.data.on_move(self.pos, to, self.color, board);
+    pub fn on_move (&mut self, to: Position, board: &mut Board) -> Option<MoveMeta> {
+        self.data.on_move(self.pos, to, self.color, board)
     }
 }
 
@@ -93,6 +93,15 @@ impl Position {
             })
         } else {
             None
+        }
+    }
+}
+
+impl Color {
+    pub fn opposite (&self) -> Color {
+        match self {
+            Color::White => Color::Black,
+            _ => Color::White
         }
     }
 }

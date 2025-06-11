@@ -11,7 +11,7 @@ pub fn all_positions() -> impl Iterator<Item = Position> {
     })
 }
 
-pub fn sliding_moves (board: &Board, from: Position, dirs: &[(i8, i8)], color: Color) -> Vec<Position> {
+pub fn sliding_moves (board: &Board, from: Position, dirs: &[(i8, i8)], color: Option<Color>) -> Vec<Position> {
     let mut moves = Vec::new();
 
     for &(dx, dy) in dirs {
@@ -19,13 +19,19 @@ pub fn sliding_moves (board: &Board, from: Position, dirs: &[(i8, i8)], color: C
 
         loop {
             if let Some(next_pos) = current.shifted(dx, dy) {
-                if board.is_empty_cell(next_pos) {
+                if board.is_empty_cell(next_pos.row as i8, next_pos.col as i8) {
                     moves.push(next_pos);
                     current = next_pos;
                     continue;
                 }
-                if board.is_enemy_cell(next_pos, color) {
-                    moves.push(next_pos);
+                if let Some(p_color) = color {
+                    if board.is_enemy_cell(next_pos.row as i8, next_pos.col as i8, p_color) {
+                        moves.push(next_pos);
+                    }
+                } else {
+                    if board.get(next_pos.row as i8, next_pos.col as i8).is_some() {
+                        moves.push(next_pos);
+                    }
                 }
                 break;
             } else {
@@ -42,7 +48,7 @@ pub fn step_moves (board: &Board, from: Position, deltas: &[(i8, i8)], color: Co
 
     for &(dx, dy) in deltas {
         if let Some(to) = from.shifted(dx, dy) {
-            if board.is_empty_cell(to) || board.is_enemy_cell(to, color) {
+            if board.is_empty_cell(to.row as i8, to.col as i8) || board.is_enemy_cell(to.row as i8, to.col as i8, color) {
                 moves.push(to);
             }
         }

@@ -37,17 +37,17 @@ impl Board {
         self[row as usize][col as usize].take()
     }
 
-    pub fn set (&mut self, pos: Position, piece: Option<Piece>) -> () {
-        if !validate_pos(pos.row as i8, pos.col as i8) { return; }
-        self[pos.row][pos.col] = piece;
+    pub fn set (&mut self, row: i8, col: i8, piece: Option<Piece>) -> () {
+        if !validate_pos(row, col) { return; }
+        self[row as usize][col as usize] = piece;
     }
 
-    pub fn is_enemy_cell (&self, pos: Position, color: Color) -> bool {
-        self.get(pos.row as i8, pos.col as i8).map_or(false, |p| p.color != color)
+    pub fn is_enemy_cell (&self, row: i8, col: i8, color: Color) -> bool {
+        self.get(row, col).map_or(false, |p| p.color != color)
     }
 
-    pub fn is_empty_cell (&self, pos: Position) -> bool {
-        self.get(pos.row as i8, pos.col as i8).is_none()
+    pub fn is_empty_cell (&self, row: i8, col: i8) -> bool {
+        self.get(row, col).is_none()
     }
 
     pub fn get_king_pos (&self, color: Color) -> Option<Position> {

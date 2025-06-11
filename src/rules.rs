@@ -1,6 +1,6 @@
 use crate::board::Board;
 use crate::utils::all_positions;
-use crate::piece::{Color, Position};
+use crate::piece::{Color, Name, Position};
 
 pub fn is_in_check (board: &Board, color: Color) -> bool {
     let king_pos = match board.get_king_pos(color) {
@@ -12,7 +12,7 @@ pub fn is_in_check (board: &Board, color: Color) -> bool {
         .filter_map(|pos| board.get(pos.row as i8, pos.col as i8)
             .map(|p| (pos, p)))
         .any(|(pos, p)| {
-            p.color != color
+            p.color != color && p.name != Name::King
                 && p
                     .data
                     .legal_moves(pos, p.color, board)
@@ -54,7 +54,7 @@ pub fn filter_moves (board: &Board, moves: &mut Vec<Position>, from: Position, c
     moves.retain(|&mv| {
         let mut b_clone = board.clone();
         if let Some(p) = b_clone.take(from.row as i8, from.col as i8) {
-            b_clone.set(mv, Some(p));
+            b_clone.set(mv.row as i8, mv.col as i8, Some(p));
         }
         !is_in_check(&b_clone, color)
     });

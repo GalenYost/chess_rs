@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::piece::{PieceData, Color, Name, Position};
+use crate::piece::{Color, MoveMeta, Name, PieceData, Position};
 use crate::board::Board;
 use crate::utils::validate_pos;
 
@@ -24,16 +24,14 @@ impl PieceData for PawnData {
 
         let row = pos.row as i8 + dir;
         if validate_pos(row as i8, pos.col as i8) {
-            let one_forward = Position { row: row as usize, col: pos.col };
-            if board.is_empty_cell(one_forward) {
-                moves.push(one_forward);
+            if board.is_empty_cell(row, pos.col as i8) {
+                moves.push(Position { row: row as usize, col: pos.col });
 
                 if !self.has_moved {
-                    let two_forward = pos.row as i8 + 2 * dir;
-                    if validate_pos(two_forward as i8, pos.col as i8) {
-                        let two_forward = Position { row: two_forward as usize, col: pos.col };
-                        if board.is_empty_cell(two_forward) {
-                            moves.push(two_forward);
+                    let two_rows_forward = pos.row as i8 + 2 * dir;
+                    if validate_pos(two_rows_forward as i8, pos.col as i8) {
+                        if board.is_empty_cell(two_rows_forward, pos.col as i8) {
+                            moves.push(Position { row: two_rows_forward as usize, col: pos.col });
                         }
                     }
                 }
@@ -42,9 +40,8 @@ impl PieceData for PawnData {
             for dc in [-1, 1] {
                 let col = pos.col as i8 + dc;
                 if validate_pos(row, col) {
-                    let diag = Position { row: row as usize, col: col as usize };
-                    if board.is_enemy_cell(diag, color) {
-                        moves.push(diag);
+                    if board.is_enemy_cell(row, col, color) {
+                        moves.push(Position { row: row as usize, col: col as usize });
                     }
                 }
             }
@@ -57,7 +54,7 @@ impl PieceData for PawnData {
         moves
     }
 
-    fn on_move (&mut self, from: Position, to: Position, color: Color, board: &mut Board) -> () {
+    fn on_move (&mut self, from: Position, to: Position, color: Color, board: &mut Board) -> Option<MoveMeta> {
         let start_rank = match color {
             Color::White => 6,
             Color::Black => 1,
@@ -80,6 +77,22 @@ impl PieceData for PawnData {
 
         board.clear_passants(color);
         self.moved();
+
+        let can_promote = (to.row as i8)+dir == 7 || (to.row as i8)+dir == 0;
+
+        // template
+        // todo: implement promotion prompt(?)
+        let promotion = if can_promote { Some(Name::Queen) } else { Some(Name::Queen) };
+
+        Some(MoveMeta {
+            piece_name: Name::Pawn,
+            piece_color: color,
+            from,
+            to,
+            capture: board.get(to.row as i8, to.col as i8).is_some(),
+            promotion,
+            castle: false,
+        })
     }
 }
 

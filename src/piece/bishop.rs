@@ -1,5 +1,5 @@
 use crate::utils::sliding_moves;
-use crate::piece::{Piece, PieceData, Position, Name, Color};
+use crate::piece::{Color, MoveMeta, Name, Piece, PieceData, Position};
 use crate::board::Board;
 
 use std::any::Any;
@@ -20,10 +20,10 @@ impl PieceData for BishopData {
     fn as_any_mut (&mut self) -> &mut dyn Any { self }
 
     fn legal_moves (&self, pos: Position, color: Color, board: &Board) -> Vec<Position> {
-        sliding_moves(board, pos, DIRS, color)
+        sliding_moves(board, pos, DIRS, Some(color))
     }
 
-    fn on_move (&mut self, _from: Position, _to: Position, _color: Color, _board: &mut Board) -> () {}
+    fn on_move (&mut self, _from: Position, _to: Position, _color: Color, _board: &mut Board) -> Option<MoveMeta> {None}
 }
 
 pub fn new (pos: Position, color: Color) -> Piece {
