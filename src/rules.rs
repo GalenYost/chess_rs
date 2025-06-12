@@ -9,14 +9,9 @@ pub fn is_in_check (board: &Board, color: Color) -> bool {
     };
 
     all_positions()
-        .filter_map(|pos| board.get(pos.row as i8, pos.col as i8)
-            .map(|p| (pos, p)))
-        .any(|(pos, p)| {
-            p.color != color && p.name != Name::King
-                && p
-                    .data
-                    .legal_moves(pos, p.color, board)
-                    .contains(&king_pos)
+        .filter_map(|pos| board.get(pos.row as i8, pos.col as i8).map(|p| (pos, p)))
+        .any(|(_pos, p)| {
+            p.color != color && p.name != Name::King && p.legal_moves(board).contains(&king_pos)
         })
 }
 
