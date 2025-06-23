@@ -78,11 +78,16 @@ impl PieceData for PawnData {
         board.clear_passants(color);
         self.moved();
 
-        let can_promote = (to.row as i8)+dir == 7 || (to.row as i8)+dir == 0;
+        let can_promote = match color {
+            Color::White => to.row as i8 - 1 == 0,
+            Color::Black => to.row as i8 + 1 == 7,
+        }; 
 
         // template
         // todo: implement promotion prompt(?)
-        let promotion = if can_promote { Some(Name::Queen) } else { Some(Name::Queen) };
+        // idea: await for user to click button and check if can_promote, if so - put selected
+        // piece
+        let promotion = if can_promote { Some(Name::Queen) } else { None };
 
         Some(MoveMeta {
             piece_name: Name::Pawn,

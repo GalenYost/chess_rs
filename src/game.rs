@@ -2,20 +2,11 @@ use crate::board::Board;
 use crate::piece::{Color, MoveMeta, Position};
 use crate::rules::filter_moves;
 
+#[derive(Default)]
 pub struct Game {
     pub board: Board,
     pub history: Vec<MoveMeta>,
     turn: Color,
-}
-
-impl Default for Game {
-    fn default() -> Self {
-        Self {
-            board: Board::default(),
-            turn: Color::default(),
-            history: Vec::new(),
-        }
-    }
 }
 
 impl Game {

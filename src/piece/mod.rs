@@ -26,7 +26,7 @@ pub struct Position {
     pub col: usize
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug,Clone,Copy)]
 pub struct MoveMeta {
     pub piece_name: Name,
     pub piece_color: Color,
